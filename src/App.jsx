@@ -11,8 +11,11 @@ import Settings from './pages/Settings.jsx';
 function Layout({ children }) {
   return (
     <div className="app-shell">
+      <div style={{height:'5px',background:'linear-gradient(90deg,#7c3aed,#3b82f6)',marginBottom:'-5px'}} />
       <header className="app-header">
-        <h1>Xpense Pilot</h1>
+        <h1 style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
+          <span style={{fontWeight:900,fontSize:'1.7rem',color:'#7c3aed'}}>💸</span> Xpense Pilot
+        </h1>
         <nav>
           <NavLink to="/" end>Dashboard</NavLink>
           <NavLink to="/transactions">Transactions</NavLink>
@@ -23,7 +26,7 @@ function Layout({ children }) {
         </nav>
       </header>
       <main className="app-main">{children}</main>
-      <footer className="app-footer">Local-only demo • No backend required</footer>
+      <footer className="app-footer">Local-only demo  No backend required</footer>
     </div>
   );
 }
