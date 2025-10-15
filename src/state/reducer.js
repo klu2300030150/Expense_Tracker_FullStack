@@ -13,6 +13,8 @@ export const Action = {
   SNAPSHOT: 'SNAPSHOT',
   IMPORT_DATA: 'IMPORT_DATA',
   RESET: 'RESET',
+  LOGIN: 'LOGIN',
+  LOGOUT: 'LOGOUT',
 };
 
 export function reducer(state, action) {
@@ -54,6 +56,13 @@ export function reducer(state, action) {
       return { ...state, ...action.payload };
     case Action.RESET:
       return initialState;
+    case Action.LOGIN: {
+      const user = action.payload; // { name, email, avatar }
+      return { ...state, auth: { isAuthenticated: true, user } };
+    }
+    case Action.LOGOUT: {
+      return { ...state, auth: { isAuthenticated: false, user: null } };
+    }
     default:
       return state;
   }

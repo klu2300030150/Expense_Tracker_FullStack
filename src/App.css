@@ -241,3 +241,8 @@ button.danger {
   color: var(--warn);
   background: #fffbe6;
 }
+
+/* Subtle animations */
+.fade-in { animation: fadeIn 300ms ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px);} to { opacity:1; transform: translateY(0);} }
+.glow:hover { box-shadow: 0 6px 28px rgba(124,58,237,0.18), 0 2px 12px rgba(59,130,246,0.12); }

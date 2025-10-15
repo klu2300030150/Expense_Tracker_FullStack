@@ -50,4 +50,8 @@ export const initialState = {
   bills: [], // { id, name, amount, dueDay, category, notes }
   settings: initialSettings,
   snapshots: [], // { id, name, createdAt, dataSummary }
+  auth: {
+    isAuthenticated: false,
+    user: null, // { name, email, avatar }
+  },
 };
