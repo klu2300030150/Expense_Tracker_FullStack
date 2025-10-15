@@ -8,6 +8,7 @@ import Bills from './pages/Bills.jsx';
 import Insights from './pages/Insights.jsx';
 import Settings from './pages/Settings.jsx';
 import Login from './pages/Login.jsx';
+import Signup from './pages/Signup.jsx';
 import { useApp } from './state/AppContext.jsx';
 import { Action } from './state/reducer.js';
 import { clearToken } from './lib/api.js';
@@ -53,7 +54,8 @@ export default function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/signup" element={<Signup />} />
         <Route
           path="/*"
           element={

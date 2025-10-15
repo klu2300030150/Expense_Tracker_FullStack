@@ -33,6 +33,13 @@ export async function loginRequest(email, password) {
   });
 }
 
+export async function registerRequest(email, name, password) {
+  return apiFetch('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ email, name, password }),
+  });
+}
+
 export async function getMe() {
   return apiFetch('/auth/me');
 }

@@ -60,9 +60,16 @@ export default function Login() {
           <label>Password
             <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="••••" required />
           </label>
-          {error && <div className="error">{error}</div>}
+          {error && (
+            <div className="error" role="alert">
+              {error}
+              {error.includes('User not exists') && (
+                <span> — <a href="#/signup">Create an account</a></span>
+              )}
+            </div>
+          )}
           <button type="submit" className="primary" disabled={loading}>{loading ? 'Signing in…' : 'Sign in'}</button>
-          <div className="tips muted">Tip: Any valid email works. Password ≥ 4 chars.</div>
+          <div className="tips muted">Don’t have an account? <a href="#/signup">Sign up</a></div>
         </form>
       </div>
     </div>
