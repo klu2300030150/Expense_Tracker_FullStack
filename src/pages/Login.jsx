@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../state/AppContext.jsx';
 import { Action } from '../state/reducer.js';
+import { loginRequest, setToken } from '../lib/api.js';
 import './login.css';
 
 function validateEmail(email) {
@@ -26,17 +27,20 @@ export default function Login() {
       return;
     }
     setLoading(true);
-    // Simulate client-only login
-    setTimeout(() => {
+    try {
+      const data = await loginRequest(email, password); // { token, user }
+      setToken(data.token);
       dispatch({ type: Action.LOGIN, payload: {
-        name: email.split('@')[0],
-        email,
-        avatar: `https://api.dicebear.com/9.x/identicon/svg?seed=${encodeURIComponent(email)}`,
+        name: data.user.name,
+        email: data.user.email,
+        avatar: `https://api.dicebear.com/9.x/identicon/svg?seed=${encodeURIComponent(data.user.email)}`,
       }});
-      setLoading(false);
-      // redirect using hash router
       window.location.hash = '#/';
-    }, 800);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -10,6 +10,7 @@ import Settings from './pages/Settings.jsx';
 import Login from './pages/Login.jsx';
 import { useApp } from './state/AppContext.jsx';
 import { Action } from './state/reducer.js';
+import { clearToken } from './lib/api.js';
 
 function ProtectedRoute({ children }) {
   const { state } = useApp();
@@ -38,7 +39,7 @@ function Layout({ children }) {
           <div className="row" style={{marginLeft:'auto'}}>
             <img src={state.auth.user?.avatar} alt="avatar" width="28" height="28" style={{borderRadius:'50%'}} />
             <span className="muted" style={{fontWeight:600}}>{state.auth.user?.name}</span>
-            <button onClick={()=>dispatch({type: Action.LOGOUT})}>Logout</button>
+            <button onClick={()=>{ clearToken(); dispatch({type: Action.LOGOUT}); window.location.hash = '#/login'; }}>Logout</button>
           </div>
         )}
       </header>

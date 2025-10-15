@@ -8,6 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "dev:api": "node ../ExpenseAPI/index.js",
+    "dev:all": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm run dev\"",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
@@ -24,6 +26,7 @@
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react-swc": "^4.1.0",
+    "concurrently": "^9.0.1",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
