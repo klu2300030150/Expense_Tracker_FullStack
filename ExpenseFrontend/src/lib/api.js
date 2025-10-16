@@ -9,9 +9,19 @@ async function checkBackend() {
   if (backendAvailable !== null) return backendAvailable;
   
   try {
-    const res = await fetch(`${API_BASE}/health`, { method: 'GET' });
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
+    
+    const res = await fetch(`${API_BASE}/api/health`, { 
+      method: 'GET',
+      signal: controller.signal 
+    });
+    clearTimeout(timeoutId);
     backendAvailable = res.ok;
-  } catch {
+  } catch (error) {
+    // Backend not available (timeout, network error, etc.)
+    console.log('Backend not available, using localStorage mode');
     backendAvailable = false;
   }
   return backendAvailable;
