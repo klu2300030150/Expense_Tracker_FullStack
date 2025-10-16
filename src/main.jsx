@@ -7,7 +7,7 @@ import { AppProvider, useApp } from './state/AppContext.jsx';
 function RootWithFlags() {
   const { state } = useApp();
   return (
-    <div data-panic={state.settings.panicHide ? 'true' : 'false'}>
+    <div data-panic={state?.settings?.panicHide ? 'true' : 'false'}>
       <App />
     </div>
   );
