@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../state/AppContext.jsx';
 import { Action } from '../state/reducer.js';
 import { loginRequest, setToken } from '../lib/api.js';
-import './login.css';
+import './Login.css';
 
 function validateEmail(email) {
   return /\S+@\S+\.\S+/.test(email);

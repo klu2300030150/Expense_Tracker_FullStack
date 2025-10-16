@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { registerRequest } from '../lib/api.js';
-import './login.css';
+import './Login.css';
 
 function validateEmail(email) {
   return /\S+@\S+\.\S+/.test(email);
