@@ -26,17 +26,22 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: ExpenseFrontend/package-lock.json
 
       - name: Install dependencies
+        working-directory: ./ExpenseFrontend
         run: npm ci
 
       - name: Build
+        working-directory: ./ExpenseFrontend
         run: npm run build
+        env:
+          NODE_ENV: production
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./ExpenseFrontend/dist
 
   deploy:
     environment:
