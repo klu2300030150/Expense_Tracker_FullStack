@@ -1,0 +1,15 @@
+# Build outputs
+dist/
+build/
+target/
+*.min.js
+
+# Dependencies
+node_modules/
+
+# Backend projects
+SpringBootApp/
+ExpenseAPI/
+
+# Test coverage
+coverage/

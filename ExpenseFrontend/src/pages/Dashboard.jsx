@@ -5,7 +5,7 @@ import { ImportExport, SnapshotTool, KeyboardShortcuts } from '../components/Uti
 import { Action } from '../state/reducer.js';
 
 export default function Dashboard() {
-  const { state } = useApp();
+  const { state, dispatch } = useApp();
   const totals = useMemo(() => {
     let expense = 0, income = 0;
     for (const t of state.transactions) {

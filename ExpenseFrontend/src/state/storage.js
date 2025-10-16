@@ -25,5 +25,7 @@ export function loadState() {
 export function clearState() {
   try {
     localStorage.removeItem(STORAGE_KEY);
-  } catch {}
+  } catch {
+    // Ignore errors when clearing state
+  }
 }

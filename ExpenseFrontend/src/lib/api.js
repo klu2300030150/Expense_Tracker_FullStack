@@ -19,7 +19,7 @@ async function checkBackend() {
     });
     clearTimeout(timeoutId);
     backendAvailable = res.ok;
-  } catch (error) {
+    } catch {
     // Backend not available (timeout, network error, etc.)
     console.log('Backend not available, using localStorage mode');
     backendAvailable = false;

@@ -87,7 +87,6 @@ export function SnapshotTool() {
 }
 
 export function KeyboardShortcuts() {
-  const { state, dispatch } = useApp();
   // Toggle panic hide with Shift + P
   // Focus search in future with / etc.
   return (

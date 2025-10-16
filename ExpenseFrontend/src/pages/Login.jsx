@@ -9,7 +9,7 @@ function validateEmail(email) {
 }
 
 export default function Login() {
-  const { state, dispatch } = useApp();
+  const { dispatch } = useApp();
   const [email, setEmail] = useState('demo@example.com');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
