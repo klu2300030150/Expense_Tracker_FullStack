@@ -1,0 +1,29 @@
+# Node
+ExpenseFrontend/node_modules
+ExpenseFrontend/dist
+ExpenseFrontend/.env.local
+
+# Maven
+SpringBootApp/target
+SpringBootApp/.mvn
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Other
+*.bat
+*.ps1
+README.md

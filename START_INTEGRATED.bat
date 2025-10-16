@@ -1,4 +1,43 @@
 @echo off
+echo ========================================
+echo   Expense Tracker - Integrated Build
+echo ========================================
+echo.
+
+echo [1/3] Building React Frontend...
+cd ExpenseFrontend
+call npm install
+call npm run build
+if errorlevel 1 (
+    echo ERROR: Frontend build failed!
+    pause
+    exit /b 1
+)
+cd ..
+
+echo.
+echo [2/3] Building Spring Boot with Frontend...
+cd SpringBootApp
+call mvn clean package -DskipTests
+if errorlevel 1 (
+    echo ERROR: Backend build failed!
+    pause
+    exit /b 1
+)
+
+echo.
+echo [3/3] Starting Integrated Application...
+echo.
+echo ========================================
+echo   Application starting on port 4000
+echo   Open: http://localhost:4000
+echo ========================================
+echo.
+
+java -jar target\springboot-app-0.0.1-SNAPSHOT.jar
+
+pause
+@echo off
 REM ============================================
 REM  INTEGRATED STARTUP SCRIPT
 REM  Frontend + Spring Boot + MySQL
