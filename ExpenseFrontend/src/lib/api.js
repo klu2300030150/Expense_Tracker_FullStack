@@ -1,16 +1,12 @@
-const API_BASE = import.meta.env.VITE_API_BASE || '';
+// For integrated deployment (served from Spring Boot), use empty string for relative paths
+// For separate frontend deployment, set VITE_API_BASE in .env
+const API_BASE = import.meta.env.VITE_API_BASE !== undefined ? import.meta.env.VITE_API_BASE : '';
 
 // Check if backend is available
 let backendAvailable = null;
 
 async function checkBackend() {
   if (backendAvailable !== null) return backendAvailable;
-  
-  // If no API_BASE is configured, force local mode
-  if (!API_BASE || API_BASE.trim() === '') {
-    backendAvailable = false;
-    return backendAvailable;
-  }
   
   try {
     const res = await fetch(`${API_BASE}/health`, { method: 'GET' });
