@@ -1,6 +1,7 @@
 D:\D Drive\OneDrive - K L University\Desktop\ef1\SpringBootApp\src\main\java\com\example\springbootapp\controller\AuthController.java
 D:\D Drive\OneDrive - K L University\Desktop\ef1\SpringBootApp\src\main\java\com\example\springbootapp\repository\UserRepository.java
 D:\D Drive\OneDrive - K L University\Desktop\ef1\SpringBootApp\src\main\java\com\example\springbootapp\controller\HealthController.java
+D:\D Drive\OneDrive - K L University\Desktop\ef1\SpringBootApp\src\main\java\com\example\springbootapp\controller\SpaController.java
 D:\D Drive\OneDrive - K L University\Desktop\ef1\SpringBootApp\src\main\java\com\example\springbootapp\dto\AuthDtos.java
 D:\D Drive\OneDrive - K L University\Desktop\ef1\SpringBootApp\src\main\java\com\example\springbootapp\model\User.java
 D:\D Drive\OneDrive - K L University\Desktop\ef1\SpringBootApp\src\main\java\com\example\springbootapp\service\AuthService.java

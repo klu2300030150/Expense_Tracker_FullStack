@@ -10,3 +10,4 @@ com\example\springbootapp\dto\AuthDtos$UserDTO.class
 com\example\springbootapp\dto\AuthDtos$RegisterRequest.class
 com\example\springbootapp\repository\UserRepository.class
 com\example\springbootapp\service\AuthService.class
+com\example\springbootapp\controller\SpaController.class

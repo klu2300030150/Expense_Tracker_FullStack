@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class SpaController {
     
     // Forward all non-API routes to index.html for React Router
-    @RequestMapping(value = {"/", "/{x:[\\w\\-]+}", "/{x:^(?!api$).*$}/**/{y:[\\w\\-]+}"})
+    // This catches all paths except those starting with /api
+    @RequestMapping(value = {"/{path:[^\\.]*}"})
     public String forward() {
         return "forward:/index.html";
     }

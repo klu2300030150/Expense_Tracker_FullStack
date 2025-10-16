@@ -109,4 +109,33 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <!-- Profile to skip frontend build when static files already exist -->
+        <profile>
+            <id>frontend-skip</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>install node and npm</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>npm install</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>npm run build</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
