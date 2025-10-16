@@ -2,9 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Ensure all relative assets resolve under repo path on GitHub Pages -->
-    <base href="/ExpenseTracker/" />
-    <link rel="icon" type="image/svg+xml" href="/ExpenseTracker/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Xpense Pilot</title>
     <style>
@@ -31,6 +29,7 @@
   <body>
     <div id="boot-msg">Loading app…</div>
     <div id="root"></div>
-    <script type="module" src="/ExpenseTracker/src/main.jsx"></script>
+    <!-- Vite will transform this entry to the built asset in dist -->
+    <script type="module" src="src/main.jsx"></script>
   </body>
 </html>

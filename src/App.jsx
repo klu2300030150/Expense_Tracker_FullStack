@@ -1,4 +1,4 @@
-import { HashRouter, NavLink, Route, Routes, Navigate } from 'react-router-dom';
+import { HashRouter, NavLink, Route, Routes, Navigate, Outlet } from 'react-router-dom';
 import './App.css';
 
 import Dashboard from './pages/Dashboard.jsx';
@@ -13,15 +13,15 @@ import { useApp } from './state/AppContext.jsx';
 import { Action } from './state/reducer.js';
 import { clearToken } from './lib/api.js';
 
-function ProtectedRoute({ children }) {
+function RequireAuth() {
   const { state } = useApp();
-  if (!state.auth?.isAuthenticated) {
+  if (!state?.auth?.isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  return children;
+  return <Outlet />;
 }
 
-function Layout({ children }) {
+function Layout() {
   const { state, dispatch } = useApp();
   return (
     <div className="app-shell">
@@ -44,7 +44,7 @@ function Layout({ children }) {
           </div>
         )}
       </header>
-      <main className="app-main">{children}</main>
+      <main className="app-main"><Outlet /></main>
       <footer className="app-footer">Local-only demo  No backend required</footer>
     </div>
   );
@@ -54,25 +54,19 @@ export default function App() {
   return (
     <HashRouter>
       <Routes>
-  <Route path="/login" element={<Login />} />
-  <Route path="/signup" element={<Signup />} />
-        <Route
-          path="/*"
-          element={
-            <Layout>
-              <ProtectedRoute>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/transactions" element={<Transactions />} />
-                  <Route path="/budgets" element={<Budgets />} />
-                  <Route path="/bills" element={<Bills />} />
-                  <Route path="/insights" element={<Insights />} />
-                  <Route path="/settings" element={<Settings />} />
-                </Routes>
-              </ProtectedRoute>
-            </Layout>
-          }
-        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route element={<RequireAuth />}>
+          <Route element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="transactions" element={<Transactions />} />
+            <Route path="budgets" element={<Budgets />} />
+            <Route path="bills" element={<Bills />} />
+            <Route path="insights" element={<Insights />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Route>
       </Routes>
     </HashRouter>
   );
