@@ -20,3 +20,7 @@ createRoot(document.getElementById('root')).render(
     </AppProvider>
   </StrictMode>
 );
+
+// Remove boot message once app is mounted/render started
+const bm = document.getElementById('boot-msg');
+if (bm) bm.remove();
