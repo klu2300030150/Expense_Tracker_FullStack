@@ -13,6 +13,13 @@ function RootWithFlags() {
   );
 }
 
+// Remove boot message IMMEDIATELY before rendering
+const bootMsg = document.getElementById('boot-msg');
+if (bootMsg) {
+  bootMsg.style.display = 'none';
+  setTimeout(() => bootMsg.remove(), 100);
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AppProvider>
@@ -20,7 +27,3 @@ createRoot(document.getElementById('root')).render(
     </AppProvider>
   </StrictMode>
 );
-
-// Remove boot message once app is mounted/render started
-const bm = document.getElementById('boot-msg');
-if (bm) bm.remove();
