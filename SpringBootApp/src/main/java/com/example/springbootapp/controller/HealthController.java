@@ -7,20 +7,16 @@ import java.util.Map;
 
 @RestController
 public class HealthController {
-    @GetMapping("/")
-    public Map<String, Object> root() {
-        return Map.of(
-                "message", "Spring Boot Backend API",
-                "status", "running",
-                "endpoints", new String[]{"/health", "/auth/login", "/auth/register", "/auth/me"}
-        );
-    }
+    // Removed root mapping "/" - conflicts with React frontend
+    // Root path now serves React app via SpaController
     
-    @GetMapping("/health")
+    @GetMapping("/api/health")
     public Map<String, Object> health() {
         return Map.of(
                 "status", "UP",
-                "service", "SpringBootApp"
+                "service", "SpringBootApp",
+                "message", "Spring Boot Backend API",
+                "endpoints", new String[]{"/api/health", "/api/auth/login", "/api/auth/register", "/api/auth/me"}
         );
     }
 }
