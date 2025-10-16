@@ -1,0 +1,6 @@
+/* reset minimal additions */
+html, body, #root { height: 100%; }
+img { max-width: 100%; height: auto; }
+
+/* panic hide utility */
+[data-panic="true"] * { filter: blur(6px); }
