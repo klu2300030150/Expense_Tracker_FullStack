@@ -45,7 +45,7 @@ function Layout() {
         )}
       </header>
       <main className="app-main"><Outlet /></main>
-      <footer className="app-footer">Local-only demo  No backend required</footer>
+      <footer className="app-footer">Xpense Pilot – Expense Tracking Made Simple</footer>
     </div>
   );
 }
