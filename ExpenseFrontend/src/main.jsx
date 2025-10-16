@@ -27,3 +27,6 @@ createRoot(document.getElementById('root')).render(
     </AppProvider>
   </StrictMode>
 );
+
+// Mark app as mounted (used by index.html fallback logic)
+window.__APP_MOUNTED__ = true;

@@ -43,6 +43,12 @@
         var m = document.getElementById('boot-msg');
         if (m) { m.textContent = 'App error: ' + msg; m.style.color = '#ef4444'; }
       });
+
+      // Fallback: auto-hide boot message after 2500ms if app mounted
+      setTimeout(function(){
+        var m = document.getElementById('boot-msg');
+        if (m && window.__APP_MOUNTED__) { m.style.display = 'none'; }
+      }, 2500);
     </script>
   </head>
   <body>
