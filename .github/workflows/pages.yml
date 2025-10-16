@@ -34,7 +34,7 @@ jobs:
 
       - name: Build
         working-directory: ./ExpenseFrontend
-        run: npm run build
+        run: npm run build -- --mode pages
         env:
           NODE_ENV: production
 
