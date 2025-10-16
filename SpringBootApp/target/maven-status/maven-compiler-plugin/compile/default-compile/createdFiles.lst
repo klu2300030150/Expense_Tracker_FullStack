@@ -1,0 +1,12 @@
+com\example\springbootapp\dto\AuthDtos$LoginRequest.class
+com\example\springbootapp\dto\AuthDtos$ErrorResponse.class
+com\example\springbootapp\dto\AuthDtos.class
+com\example\springbootapp\model\User.class
+com\example\springbootapp\dto\AuthDtos$AuthResponse.class
+com\example\springbootapp\SpringBootAppApplication.class
+com\example\springbootapp\controller\HealthController.class
+com\example\springbootapp\controller\AuthController.class
+com\example\springbootapp\dto\AuthDtos$UserDTO.class
+com\example\springbootapp\dto\AuthDtos$RegisterRequest.class
+com\example\springbootapp\repository\UserRepository.class
+com\example\springbootapp\service\AuthService.class
