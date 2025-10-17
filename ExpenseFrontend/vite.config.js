@@ -11,8 +11,8 @@ export default defineConfig(({ mode }) => ({
   server: {
     // During development proxy API calls to the Spring Boot backend (default 8080)
     proxy: {
-      '/auth': 'http://localhost:8080',
-      '/api': 'http://localhost:8080',
+      '/auth': 'http://localhost:4000',
+      '/api': 'http://localhost:4000',
     }
   }
 }))
