@@ -22,3 +22,20 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Java build
+/SpringBootApp/target/
+
+# Local JDK used for builds
+/.jdk/
+
+# Node build & deps
+/ExpenseFrontend/node_modules/
+/ExpenseFrontend/dist/
+/node_modules/
+
+# Frontend build output
+/ExpenseFrontend/dist/
+
+# npm package lock (optional to keep)
+package-lock.json
