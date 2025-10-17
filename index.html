@@ -43,6 +43,23 @@
         var m = document.getElementById('boot-msg');
         if (m) { m.textContent = 'App error: ' + msg; m.style.color = '#ef4444'; }
       });
+
+      // Fallback: auto-hide boot message after 5000ms if app mounted
+      setTimeout(function(){
+        var m = document.getElementById('boot-msg');
+        if (m && window.__APP_MOUNTED__) { m.style.display = 'none'; }
+      }, 5000);
+
+      // Final watchdog: after 7500ms, if the app still hasn't mounted, hide the loader and show a helpful hint
+      setTimeout(function(){
+        if (!window.__APP_MOUNTED__) {
+          var m = document.getElementById('boot-msg');
+          if (m) {
+            m.textContent = 'App did not start. Please hard refresh (Ctrl+F5). If on GitHub Pages, wait a few seconds and try again.';
+            m.style.color = '#ef4444';
+          }
+        }
+      }, 7500);
     </script>
   </head>
   <body>

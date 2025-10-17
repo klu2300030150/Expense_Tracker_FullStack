@@ -7,15 +7,15 @@ let backendAvailable = null;
 
 async function checkBackend() {
   if (backendAvailable !== null) return backendAvailable;
-  
+
   try {
     // Add timeout to prevent hanging
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
-    
-    const res = await fetch(`${API_BASE}/api/health`, { 
+    const timeoutId = setTimeout(() => controller.abort(), 1000); // 1 second timeout for faster fallback
+
+    const res = await fetch(`${API_BASE}/api/health`, {
       method: 'GET',
-      signal: controller.signal 
+      signal: controller.signal
     });
     clearTimeout(timeoutId);
     backendAvailable = res.ok;

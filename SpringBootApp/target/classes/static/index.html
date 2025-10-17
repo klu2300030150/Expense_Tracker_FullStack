@@ -32,23 +32,62 @@
       <style>#boot-msg{color:#ef4444}</style>
     </noscript>
     <script>
-      // Show helpful message if something breaks before React mounts
-      window.addEventListener('error', function(e){
-        var m = document.getElementById('boot-msg');
-        if (m) { m.textContent = 'Failed to load app: ' + (e.message || 'Unknown error'); m.style.color = '#ef4444'; }
-      });
-      window.addEventListener('unhandledrejection', function(e){
-        var reason = e && e.reason;
-        var msg = (reason && (reason.message || reason.statusText)) || String(reason || 'Unknown error');
-        var m = document.getElementById('boot-msg');
-        if (m) { m.textContent = 'App error: ' + msg; m.style.color = '#ef4444'; }
-      });
+      // Debug overlay for deployed static build (shows runtime errors on-page)
+      (function(){
+        var overlay = document.createElement('div');
+        overlay.id = 'debug-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.left = '8px';
+        overlay.style.right = '8px';
+        overlay.style.bottom = '8px';
+        overlay.style.top = '8px';
+        overlay.style.background = 'rgba(0,0,0,0.85)';
+        overlay.style.color = '#fff';
+        overlay.style.padding = '12px';
+        overlay.style.zIndex = '999999';
+        overlay.style.overflow = 'auto';
+        overlay.style.fontFamily = 'monospace, ui-monospace, SFMono-Regular';
+        overlay.style.display = 'none';
+        overlay.innerHTML = '<strong>App debug</strong> — runtime errors will appear here.<hr/>' +
+          '<div id="debug-content" style="white-space:pre-wrap; font-size:13px"></div>' +
+          '<div style="position:absolute;right:12px;top:8px"><button id="debug-close">Close</button></div>';
+        document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(overlay); document.getElementById('debug-close').addEventListener('click', function(){ overlay.style.display='none'; }); });
+
+        function showDebug(msg){
+          overlay.style.display = 'block';
+          var c = document.getElementById('debug-content');
+          if (c) c.textContent = (msg && msg.stack) ? (msg.stack || msg) : String(msg);
+        }
+
+        window.addEventListener('error', function(e){
+          var m = document.getElementById('boot-msg');
+          var text = 'Failed to load app: ' + (e && e.message ? e.message : (e && e.error && e.error.message) || 'Unknown error');
+          if (m) { m.textContent = text; m.style.color = '#ef4444'; }
+          try { showDebug(e.error || e); } catch (ex){}
+        });
+
+        window.addEventListener('unhandledrejection', function(e){
+          var reason = e && e.reason;
+          var msg = (reason && (reason.message || reason.statusText)) || String(reason || 'Unknown error');
+          var m = document.getElementById('boot-msg');
+          if (m) { m.textContent = 'App error: ' + msg; m.style.color = '#ef4444'; }
+          try { showDebug(reason || e); } catch (ex){}
+        });
+
+        var origConsoleError = console.error.bind(console);
+        console.error = function(){
+          try { showDebug(Array.from(arguments).map(a => (a && a.stack) ? a.stack : (typeof a === 'object' ? JSON.stringify(a,null,2) : String(a))).join('\n\n')); } catch(e){}
+          origConsoleError.apply(console, arguments);
+        };
+      })();
     </script>
-    <script type="module" crossorigin src="/assets/index-D_-NCxWk.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DNb0bQWL.css">
+    <!-- Use relative asset paths so GitHub Pages serves correctly under a project path -->
+    <script type="module" crossorigin src="./assets/index-D_-NCxWk.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DNb0bQWL.css">
   </head>
   <body>
     <div id="boot-msg">Loading</div>
-    <div id="root"></div>
+    <div id="root"></div>
+
   </body>
 </html>

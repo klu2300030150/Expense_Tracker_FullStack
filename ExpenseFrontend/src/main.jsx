@@ -20,6 +20,15 @@ if (bootMsg) {
   setTimeout(() => bootMsg.remove(), 100);
 }
 
+// Defensive: if boot message isn't present yet (race in some dev setups), try again shortly
+setTimeout(() => {
+  const bm = document.getElementById('boot-msg');
+  if (bm) {
+    bm.style.display = 'none';
+    setTimeout(() => bm.remove(), 100);
+  }
+}, 300);
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AppProvider>

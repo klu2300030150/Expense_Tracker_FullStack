@@ -12,6 +12,7 @@ import Signup from './pages/Signup.jsx';
 import { useApp } from './state/AppContext.jsx';
 import { Action } from './state/reducer.js';
 import { clearToken } from './lib/api.js';
+import { useEffect } from 'react';
 
 function RequireAuth() {
   const { state } = useApp();
@@ -51,6 +52,21 @@ function Layout() {
 }
 
 export default function App() {
+  // Ensure the boot message is removed when React mounts (defensive)
+  useEffect(() => {
+    try {
+      // mark mounted for any fallback scripts
+      window.__APP_MOUNTED__ = true;
+      const m = document.getElementById('boot-msg');
+      if (m) {
+        m.style.display = 'none';
+        setTimeout(() => { try { m.remove(); } catch (e) {} }, 50);
+      }
+    } catch (e) {
+      // ignore DOM errors in unusual environments
+    }
+  }, []);
+
   return (
     <HashRouter>
       <Routes>

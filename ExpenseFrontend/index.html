@@ -1,10 +1,11 @@
-<!doctype html>
+ <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Xpense Pilot</title>
+  <title>Xpense Pilot</title>
+  <!-- If served from GitHub Pages, assets are referenced relatively by Vite base './' to avoid 404s -->
     <style>
       /* Simple loading state - will be hidden immediately when React mounts */
       #boot-msg { 
@@ -32,23 +33,74 @@
       <style>#boot-msg{color:#ef4444}</style>
     </noscript>
     <script>
-      // Show helpful message if something breaks before React mounts
-      window.addEventListener('error', function(e){
-        var m = document.getElementById('boot-msg');
-        if (m) { m.textContent = 'Failed to load app: ' + (e.message || 'Unknown error'); m.style.color = '#ef4444'; }
-      });
-      window.addEventListener('unhandledrejection', function(e){
-        var reason = e && e.reason;
-        var msg = (reason && (reason.message || reason.statusText)) || String(reason || 'Unknown error');
-        var m = document.getElementById('boot-msg');
-        if (m) { m.textContent = 'App error: ' + msg; m.style.color = '#ef4444'; }
-      });
+      // Debug overlay element (hidden by default). If any errors occur before React mounts
+      // they will be shown here so you don't need DevTools to see the failure.
+      (function(){
+        var overlay = document.createElement('div');
+        overlay.id = 'debug-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.left = '8px';
+        overlay.style.right = '8px';
+        overlay.style.bottom = '8px';
+        overlay.style.top = '8px';
+        overlay.style.background = 'rgba(0,0,0,0.85)';
+        overlay.style.color = '#fff';
+        overlay.style.padding = '12px';
+        overlay.style.zIndex = '999999';
+        overlay.style.overflow = 'auto';
+        overlay.style.fontFamily = 'monospace, ui-monospace, SFMono-Regular';
+        overlay.style.display = 'none';
+        overlay.innerHTML = '<strong>App debug</strong> — runtime errors will appear here.<hr/>' +
+          '<div id="debug-content" style="white-space:pre-wrap; font-size:13px"></div>' +
+          '<div style="position:absolute;right:12px;top:8px"><button id="debug-close">Close</button></div>';
+        document.body.appendChild(overlay);
+        document.getElementById('debug-close').addEventListener('click', function(){ overlay.style.display='none'; });
 
-      // Fallback: auto-hide boot message after 2500ms if app mounted
-      setTimeout(function(){
-        var m = document.getElementById('boot-msg');
-        if (m && window.__APP_MOUNTED__) { m.style.display = 'none'; }
-      }, 2500);
+        function showDebug(msg){
+          overlay.style.display = 'block';
+          var c = document.getElementById('debug-content');
+          if (c) c.textContent = (msg && msg.stack) ? (msg.stack || msg) : String(msg);
+        }
+
+        // Show helpful message if something breaks before React mounts
+        window.addEventListener('error', function(e){
+          var m = document.getElementById('boot-msg');
+          var text = 'Failed to load app: ' + (e && e.message ? e.message : (e && e.error && e.error.message) || 'Unknown error');
+          if (m) { m.textContent = text; m.style.color = '#ef4444'; }
+          try { showDebug(e.error || e); } catch (ex){}
+        });
+
+        window.addEventListener('unhandledrejection', function(e){
+          var reason = e && e.reason;
+          var msg = (reason && (reason.message || reason.statusText)) || String(reason || 'Unknown error');
+          var m = document.getElementById('boot-msg');
+          if (m) { m.textContent = 'App error: ' + msg; m.style.color = '#ef4444'; }
+          try { showDebug(reason || e); } catch (ex){}
+        });
+
+        // Intercept console.error so runtime warnings and errors show up in overlay too
+        var origConsoleError = console.error.bind(console);
+        console.error = function(){
+          try { showDebug(Array.from(arguments).map(a => (a && a.stack) ? a.stack : (typeof a === 'object' ? JSON.stringify(a,null,2) : String(a))).join('\n\n')); } catch(e){}
+          origConsoleError.apply(console, arguments);
+        };
+
+        // Fallback auto-hide and watchdog
+        setTimeout(function(){
+          var m = document.getElementById('boot-msg');
+          if (m && window.__APP_MOUNTED__) { m.style.display = 'none'; }
+        }, 5000);
+
+        setTimeout(function(){
+          if (!window.__APP_MOUNTED__) {
+            var m = document.getElementById('boot-msg');
+            if (m) {
+              m.textContent = 'App did not start. Open DevTools Console or check the debug overlay (click) for details.';
+              m.style.color = '#ef4444';
+            }
+          }
+        }, 7500);
+      })();
     </script>
   </head>
   <body>
