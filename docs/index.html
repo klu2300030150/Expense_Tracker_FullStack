@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Expense Tracker — Deploying</title>
+    <style>
+      body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;padding:40px;background:#f8fafc;color:#111827}
+      .card{max-width:800px;margin:48px auto;padding:28px;border-radius:12px;background:#fff;border:1px solid #e6eef6}
+      h1{margin:0 0 8px;font-size:20px}
+      p{margin:8px 0;color:#374151}
+      a.button{display:inline-block;margin-top:12px;padding:8px 12px;background:#0366d6;color:#fff;border-radius:6px;text-decoration:none}
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Expense Tracker — site is being deployed</h1>
+      <p>Thanks — the live app build is currently being rebuilt and deployed. The previous static assets were missing, which caused the "Loading" state to remain visible. While the automatic build finishes, this placeholder page is shown so visitors have a friendly message.</p>
+      <p>If you are the site owner and want to see the app locally, run the integrated dev script locally:</p>
+      <pre>powershell -ExecutionPolicy Bypass -NoProfile -File .\scripts\start-integrated.ps1</pre>
+      <a class="button" href="/Expense_Tracker_FullStack/">Reload Pages</a>
+      <p style="margin-top:12px;color:#6b7280">This placeholder will be replaced automatically when the GitHub Actions job finishes deploying the real site.</p>
+    </div>
+  </body>
+</html>
