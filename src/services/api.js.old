@@ -1,0 +1,134 @@
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Add request interceptor to handle authentication
+api.interceptors.request.use(
+  (config) => {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      config.headers['User-Id'] = userId;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle errors
+api.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    if (error.response) {
+      // Server returned an error
+      if (error.response.status === 401) {
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        window.location.href = '/login';
+      }
+      return Promise.reject(error.response.data);
+    }
+    return Promise.reject(error);
+  }
+);
+
+  async updateTransaction(id, transaction) {
+    const response = await fetch(`${BASE_URL}/transactions/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(transaction),
+    });
+    return response.json();
+  },
+
+  async deleteTransaction(id) {
+    await fetch(`${BASE_URL}/transactions/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Category APIs
+  async getAllCategories() {
+    const response = await fetch(`${BASE_URL}/categories`);
+    return response.json();
+  },
+
+  async createCategory(category) {
+    const response = await fetch(`${BASE_URL}/categories`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(category),
+    });
+    return response.json();
+  },
+
+  async updateCategory(id, category) {
+    const response = await fetch(`${BASE_URL}/categories/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(category),
+    });
+    return response.json();
+  },
+
+  async deleteCategory(id) {
+    await fetch(`${BASE_URL}/categories/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Budget APIs
+  async getAllBudgets() {
+    const response = await fetch(`${BASE_URL}/budgets`);
+    return response.json();
+  },
+
+  async createBudget(budget) {
+    const response = await fetch(`${BASE_URL}/budgets`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(budget),
+    });
+    return response.json();
+  },
+
+  async updateBudget(id, budget) {
+    const response = await fetch(`${BASE_URL}/budgets/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(budget),
+    });
+    return response.json();
+  },
+
+  async deleteBudget(id) {
+    await fetch(`${BASE_URL}/budgets/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Error handling helper
+  async handleResponse(response) {
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Something went wrong');
+    }
+    return response.json();
+  }
+};

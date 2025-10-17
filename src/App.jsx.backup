@@ -1,0 +1,338 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Login } from './components/Login';
+import { Register } from './components/Register';
+import Dashboard from './components/Dashboard';
+import { PrivateRoute } from './components/PrivateRoute';
+import './styles/auth.css';
+
+const STORAGE_KEY = 'unique-expense-tracker:v1'
+const LAST_RECURRING_KEY = STORAGE_KEY + ':lastRecurringRun'
+
+export default function App() {
+  console.log('App component mounted');
+  const [categories, setCategories] = React.useState([]);
+  const [budgets, setBudgets] = React.useState({});
+  const [autoRules, setAutoRules] = React.useState([]);
+  const [transactions, setTransactions] = React.useState([]);
+  
+  // Add error boundary
+  React.useEffect(() => {
+    window.onerror = (msg, url, line, col, error) => {
+      console.error('Global error:', { msg, url, line, col, error });
+    };
+  }, []);
+
+  React.useEffect(() => {
+    // Load data from localStorage on mount
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const data = JSON.parse(savedData);
+        if (data.categories) setCategories(data.categories);
+        if (data.budgets) setBudgets(data.budgets);
+        if (data.autoRules) setAutoRules(data.autoRules);
+        if (data.transactions) setTransactions(data.transactions);
+      } catch (e) {
+        console.error('Error loading saved data:', e);
+      }
+    }
+  }, []);
+
+  // Save data to localStorage whenever it changes
+  React.useEffect(() => {
+    const data = { categories, budgets, autoRules, transactions };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, [categories, budgets, autoRules, transactions]);
+
+  function addCategory(name) {
+    setCategories(c => c.includes(name) ? c : [...c, name]);
+  }
+
+  function setBudget(cat, val) {
+    setBudgets(b => ({ ...b, [cat]: val }));
+  }
+
+  return (
+    <BrowserRouter>
+      <div className="app-container">
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <Dashboard 
+                categories={categories}
+                transactions={transactions}
+                budgets={budgets}
+                autoRules={autoRules}
+                onAddCategory={addCategory}
+                onSetBudget={setBudget}
+              />
+            </PrivateRoute>
+          } />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
+
+  // Simple auto-categorization based on pattern rules
+  function applyAutoCategory(tx){
+    const desc = (tx.description||'').toLowerCase()
+    for(const r of autoRules){
+      if(desc.includes(r.pattern.toLowerCase())){
+        return r.category
+      }
+    }
+    return 'uncategorized'
+  }
+
+  function removeTransaction(id) {
+    setTransactions(t => t.filter(x => x.id !== id))
+  }
+
+  function exportCSV(){
+    const rows = [['id','date','description','amount','recurring']]
+    for(const tx of transactions){
+      rows.push([tx.id, tx.date, tx.description.replace(/\n/g,' '), String(tx.amount), tx.recurring ? '1' : '0'])
+    }
+    const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'transactions.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function importCSV(text){
+    try{
+      const lines = text.split(/\r?\n/).filter(Boolean)
+      const rows = lines.map(l=>{
+        // naive CSV parse for quoted values
+        const cols = []
+        let cur = ''
+        let inQ = false
+        for(let i=0;i<l.length;i++){
+          const ch = l[i]
+          if(ch === '"') { if(inQ && l[i+1]==='"'){ cur+='"'; i++ } else inQ = !inQ; continue }
+          if(ch===',' && !inQ){ cols.push(cur); cur=''; continue }
+          cur+=ch
+        }
+        cols.push(cur)
+        return cols.map(c=>c.trim())
+      })
+      const header = rows.shift()
+      const idx = {
+        id: header.indexOf('id'),
+        date: header.indexOf('date'),
+        description: header.indexOf('description'),
+        amount: header.indexOf('amount'),
+        recurring: header.indexOf('recurring')
+      }
+      const parsed = rows.map(r=>({
+        id: r[idx.id] || uuidv4(),
+        date: r[idx.date] || new Date().toISOString(),
+        description: r[idx.description] || 'Imported',
+        amount: parseFloat(r[idx.amount]||'0'),
+        recurring: (r[idx.recurring]||'0') === '1'
+      }))
+      setTransactions(t => [...parsed, ...t])
+      return true
+    }catch(e){
+      console.error(e)
+      return false
+    }
+  }
+
+  // JSON export/import (backup)
+  function exportJSON(){
+    const payload = { transactions, categories, budgets, autoRules, exportedAt: new Date().toISOString() }
+    const txt = JSON.stringify(payload, null, 2)
+    const blob = new Blob([txt], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'lumenledger-backup.json'; a.click(); URL.revokeObjectURL(url)
+  }
+
+  async function exportEncrypted(password){
+    const payload = { transactions, categories, budgets, autoRules, exportedAt: new Date().toISOString() }
+    const txt = JSON.stringify(payload)
+    const enc = await encryptString(password, txt)
+    const blob = new Blob([enc], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'lumenledger-backup-encrypted.json'; a.click(); URL.revokeObjectURL(url)
+  }
+
+  async function importEncrypted(payloadStr){
+    const pw = prompt('Enter password to decrypt backup')
+    if(!pw) return
+    try{
+      const txt = await decryptString(pw, payloadStr)
+      const parsed = JSON.parse(txt)
+      if(parsed.transactions) setTransactions(t=> [...parsed.transactions, ...t])
+      if(parsed.categories) setCategories(c=> Array.from(new Set([...c, ...parsed.categories])))
+      if(parsed.budgets) setBudgets(b=> ({ ...b, ...parsed.budgets }))
+      if(parsed.autoRules) setAutoRules(r=> Array.from(new Set([...r, ...parsed.autoRules])))
+      alert('Imported encrypted backup successfully')
+    }catch(e){ alert('Failed to decrypt/parse backup') }
+  }
+
+  // Apply monthly recurring transactions: for each recurringOriginId, add monthly occurrences until now
+  function addMonths(baseDate, months){
+    const d = new Date(baseDate)
+    const day = d.getDate()
+    d.setMonth(d.getMonth() + months)
+    // handle month overflow (e.g., Feb 30 -> last day)
+    if (d.getDate() !== day) {
+      d.setDate(0) // go to last day of previous month
+    }
+    return d
+  }
+
+  function runRecurring(){
+    try{
+      const now = new Date()
+      const toAdd = []
+
+      // find transactions that define recurrence rules
+      const masters = transactions.filter(t => t.recurrence)
+      for(const m of masters){
+        const rule = m.recurrence
+        const start = rule.startDate ? new Date(rule.startDate) : new Date(m.date)
+        const end = rule.endDate ? new Date(rule.endDate) : null
+        const maxCount = rule.count || null
+
+        // build a set of existing occurrence dates (stringified yyyy-mm-dd) for this origin
+        const originId = m.recurringOriginId || m.id
+        const existing = transactions.filter(t => (t.recurringOriginId||t.recurringOriginId===null? t.recurringOriginId: t.recurringOriginId) && (t.recurringOriginId === originId || t.id === originId) )
+        const existSet = new Set(existing.map(x=> (new Date(x.date)).toISOString().slice(0,10)))
+
+        // the occurrence cursor should start at the later of start or the transaction date
+        let cursor = new Date(start)
+        // if the original master is older, include months after the last existing
+        const lastExistingDates = existing.map(x=>new Date(x.date)).sort((a,b)=>a-b)
+        if(lastExistingDates.length){
+          const last = lastExistingDates[lastExistingDates.length-1]
+          cursor = new Date(last)
+        }
+
+        // generate up to 120 iterations guard
+        let guard = 0
+        let generated = 0
+        while(true){
+          if(guard++ > 120) break
+          // compute next occurrence based on freq
+          let next = null
+          if(rule.freq === 'daily'){
+            next = new Date(cursor); next.setDate(next.getDate() + (rule.interval || 1))
+          } else if(rule.freq === 'weekly'){
+            next = new Date(cursor); next.setDate(next.getDate() + 7 * (rule.interval || 1))
+          } else { // monthly
+            next = addMonths(cursor, (rule.interval||1))
+          }
+
+          if(!next) break
+          // stop if after end
+          if(end && next > end) break
+          if(next > now) break
+
+          const key = next.toISOString().slice(0,10)
+          if(!existSet.has(key)){
+            toAdd.push({ description: m.description, amount: Number(m.amount), date: next.toISOString(), recurring: true, recurringOriginId: originId, recurrence: rule })
+            generated++
+          }
+
+          cursor = next
+          if(maxCount && generated >= maxCount) break
+        }
+      }
+
+      if(toAdd.length){
+        setTransactions(t => [...toAdd.map(tx=>({ id: uuidv4(), ...tx })), ...t])
+      }
+      localStorage.setItem(LAST_RECURRING_KEY, new Date().toISOString())
+      return toAdd.length
+    }catch(e){
+      console.error('runRecurring error', e)
+      return 0
+    }
+  }
+
+  // Run recurring once after initial load
+  useEffect(()=>{
+    // small timeout so the UI mounts first
+    setTimeout(()=>{
+      try{ runRecurring() }catch(e){}
+    }, 200)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const lastRecurring = localStorage.getItem(LAST_RECURRING_KEY)
+  const [view, setView] = React.useState('dashboard')
+
+  return (
+    <div className="app-root app-with-sidebar">
+      <Sidebar view={view} onNavigate={setView} />
+      <div className="main-area">
+        <Header onRunRecurring={() => {
+          const added = runRecurring()
+          if(added){
+            alert(`Added ${added} recurring occurrences`)
+          } else {
+            alert('No new recurring occurrences were added')
+          }
+        }} lastRecurring={lastRecurring} />
+
+        <main className="container">
+          {view === 'dashboard' && (
+            <Dashboard transactions={transactions} categories={categories} budgets={budgets} />
+          )}
+
+          {view === 'add' && (
+            <div className="main-grid">
+              <div>
+                <AddTransaction onAdd={(tx)=>{ const newTx = addTransaction(tx); const cat = applyAutoCategory(newTx); setTransactions(t=> t.map(x=> x.id===newTx.id ? { ...x, category: cat } : x)); }} />
+                <CategoryBudget categories={categories} budgets={budgets} onAddCategory={addCategory} onSetBudget={setBudget} />
+              </div>
+              <div>
+                <DonutChart transactions={transactions} />
+                <MonthlySummary transactions={transactions} budgets={budgets} />
+                <BackupControls onExportJSON={exportJSON} onImportJSON={(txt)=>{ try{ const p=JSON.parse(txt); if(p.transactions) setTransactions(t=> [...p.transactions, ...t]); alert('Imported JSON backup') }catch(e){ alert('Invalid JSON') } }} onExportEncrypted={()=>{
+                  const pw = prompt('Enter a password to encrypt backup')
+                  if(pw) exportEncrypted(pw)
+                }} onImportEncrypted={(txt)=> importEncrypted(txt)} />
+              </div>
+              <TransactionList transactions={transactions} categories={categories} onAssignCategory={(id,cat)=> setTransactions(t=> t.map(x=> x.id===id ? {...x, category: cat } : x))} onRemove={removeTransaction} onAdd={addTransaction} onExport={exportCSV} onImport={importCSV} onToggleRecurring={(id)=>{
+                setTransactions(t => t.map(x => x.id===id ? { ...x, recurring: !x.recurring } : x))
+              }} />
+            </div>
+          )}
+
+          {view === 'transactions' && (
+            <div>
+              <BalanceCard transactions={transactions} />
+              <TransactionList transactions={transactions} categories={categories} onAssignCategory={(id,cat)=> setTransactions(t=> t.map(x=> x.id===id ? {...x, category: cat } : x))} onRemove={removeTransaction} onAdd={addTransaction} onExport={exportCSV} onImport={importCSV} onToggleRecurring={(id)=>{
+                setTransactions(t => t.map(x => x.id===id ? { ...x, recurring: !x.recurring } : x))
+              }} />
+            </div>
+          )}
+
+          {view === 'categories' && (
+            <CategoryBudget categories={categories} budgets={budgets} onAddCategory={addCategory} onSetBudget={setBudget} />
+          )}
+
+          {view === 'backup' && (
+            <BackupControls onExportJSON={exportJSON} onImportJSON={(txt)=>{ try{ const p=JSON.parse(txt); if(p.transactions) setTransactions(t=> [...p.transactions, ...t]); alert('Imported JSON backup') }catch(e){ alert('Invalid JSON') } }} onExportEncrypted={()=>{
+              const pw = prompt('Enter a password to encrypt backup')
+              if(pw) exportEncrypted(pw)
+            }} onImportEncrypted={(txt)=> importEncrypted(txt)} />
+          )}
+        </main>
+      </div>
+    </div>
+  )
+}
